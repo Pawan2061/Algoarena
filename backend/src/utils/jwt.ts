@@ -2,6 +2,7 @@ import { JwtPayload } from "../interface";
 import jwt from "jsonwebtoken";
 
 import { NextFunction, Request, Response } from "express";
+import prisma from "./prisma";
 type token = string;
 
 export const createToken = async (payload: JwtPayload) => {
@@ -32,4 +33,24 @@ export const verifyToken = async (
     req.user = decodedToken;
     next();
   });
+};
+
+export const checkRole = async (
+  req: any,
+  res: Response,
+  next: NextFunction
+): Promise<any> => {
+  console.log(req.user);
+
+  const user = await prisma.user.findUnique({
+    where: {
+      id: req.user.id,
+    },
+  });
+  if (user?.role != "Admin") {
+    return res.status(403).json({
+      message: "unauthorized",
+    });
+  }
+  next();
 };

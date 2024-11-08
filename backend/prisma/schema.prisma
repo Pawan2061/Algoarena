@@ -18,7 +18,8 @@ model User {
   name     String
   password String
 
-  totalSubmissions Int @default(0)
+  totalSubmissions Int  @default(0)
+  role             Role @default(Admin)
 
   submission Submission[]
 }
@@ -57,4 +58,9 @@ enum SubmissionStatus {
   Pending
   Accepted
   Rejected
+}
+
+enum Role {
+  Admin
+  User
 }

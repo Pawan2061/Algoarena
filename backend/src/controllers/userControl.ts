@@ -25,6 +25,7 @@ export const signUp = async (
       },
     });
     const payload: JwtPayload = {
+      id: user.id,
       name: name,
       password: password,
     };
@@ -81,6 +82,7 @@ export const signIn = async (
       });
     }
     const payload: JwtPayload = {
+      id: user.id,
       name: name,
       password: password,
     };
