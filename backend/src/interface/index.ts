@@ -25,3 +25,10 @@ export interface boilerPlatePayload {
   languageId: string;
   code: string;
 }
+
+export interface submissionPayload {
+  languageId: string;
+  code: string;
+  userId: string;
+  problemId: string;
+}
