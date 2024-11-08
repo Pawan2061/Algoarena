@@ -20,3 +20,8 @@ export interface problemPayload {
   output: string;
   boilerPlateId: string;
 }
+
+export interface boilerPlatePayload {
+  languageId: string;
+  code: string;
+}
