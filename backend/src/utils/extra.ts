@@ -1,6 +1,7 @@
 import { languages } from "./languages";
 import prisma from "./prisma";
 import { exec } from "child_process";
+import fs from "fs";
 
 export const findProblemAndLanguage = async (
   id: string,
@@ -14,39 +15,54 @@ export const findProblemAndLanguage = async (
   const language = languages.find((l) => l.id === languageId);
   return { language, problem };
 };
-// export const runPythonCode = async (pythonCode: string): Promise<string> => {
-//     return new Promise((resolve, reject) => {
-
-//         exec(command, (error, stdout, stderr) => {
-//             if (error) {
-//                 console.error(`Error executing Python code: ${error.message}`);
-//                 reject(`Error: ${error.message}`);
-//                 return;
-//             }
-//             if (stderr) {
-//                 console.error(`Python stderr: ${stderr}`);
-//                 reject(`Error: ${stderr}`);
-//                 return;
-//             }
-//             console.log(`Python Output: ${stdout}`);
-//             resolve(stdout);
-//         });
-//     });
-// };
 
 export const runCode = async (code: string) => {
   const command = `python3 -c "${code.replace(/"/g, '\\"')}"`;
+  const fileName = "pawan.py";
+  fs.writeFileSync(fileName, code);
 
   return new Promise((resolve, reject) => {
     exec(command, (error, stdout, stderr) => {
       if (error) {
-        return error;
+        return reject(new Error(`Execution error: ${error.message}`));
       }
       if (stderr) {
-        return stderr;
+        return reject(new Error(`stderr: ${stderr}`));
       }
-      const ans = stdout;
-      resolve(ans);
+
+      resolve(stdout);
+    });
+  });
+};
+
+export const runCodeJava = async (code: string) => {
+  const fileName = "TempProgram.java";
+
+  fs.writeFileSync(fileName, code);
+
+  return new Promise((resolve, reject) => {
+    exec(`javac ${fileName}`, (compileError, compileStdout, compileStderr) => {
+      if (compileError) {
+        return reject(new Error(`Compilation error: ${compileError.message}`));
+      }
+      if (compileStderr) {
+        return reject(new Error(`Compilation stderr: ${compileStderr}`));
+      }
+
+      exec(
+        `java ${fileName.replace(".java", "")}`,
+        (runError, runStdout, runStderr) => {
+          fs.unlinkSync(fileName);
+
+          if (runError) {
+            return reject(new Error(`Execution error: ${runError.message}`));
+          }
+          if (runStderr) {
+            return reject(new Error(`Execution stderr: ${runStderr}`));
+          }
+          resolve(runStdout);
+        }
+      );
     });
   });
 };

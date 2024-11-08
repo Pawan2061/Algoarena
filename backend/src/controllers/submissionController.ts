@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { submissionPayload } from "../interface";
 import prisma from "../utils/prisma";
 
-import { findProblemAndLanguage, runCode } from "../utils/extra";
+import { findProblemAndLanguage, runCode, runCodeJava } from "../utils/extra";
 
 export const createSubmission = async (
   req: any,
