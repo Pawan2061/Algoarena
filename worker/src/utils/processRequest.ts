@@ -1,4 +1,3 @@
-import { runCode } from "../controllers/codeController";
 import { CodeElement } from "../interface";
 import axios from "axios";
 import { getOptions } from "./creds";
@@ -8,10 +7,14 @@ export const processRequest = async (element: CodeElement) => {
 
   switch (langId) {
     case "52":
-      const resp = await getOptions(element.code);
+      const input = {
+        language_id: parseInt(element.languageId),
+        source_code: element.code,
+      };
+      const resp = await getOptions(input);
+      console.log(resp, "is here");
 
-      //   const data = await axios.request(resp);
-      //   console.log(data);
+      const data = await axios.request(resp);
 
       return "Python";
     case "2":

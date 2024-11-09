@@ -32,3 +32,15 @@ export interface submissionPayload {
   userId: string;
   problemId: string;
 }
+
+export interface Redispayload {
+  code: string;
+  languageId: string;
+  problemId: string;
+}
+
+export interface CodeElement {
+  code: string;
+  languageId: string;
+  problemId: string;
+}
