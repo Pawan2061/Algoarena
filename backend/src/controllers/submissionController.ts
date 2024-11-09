@@ -1,7 +1,7 @@
 import { Response } from "express";
 
-const redisQueue = "requestqueue";
-
+const requestQueue = "requestqueue";
+const responseQueue = "responsequeue";
 import { findProblemAndLanguage, runCode, runCodeJava } from "../utils/extra";
 import { redisClient } from "..";
 import { Redispayload } from "../interface";
@@ -19,26 +19,26 @@ export const createSubmission = async (
         message: "credentials are unavailble",
       });
     }
-    // const { problem, language } = await findProblemAndLanguage(
-    //   problemId,
-    //   languageId
-    // );
 
-    // if (!problem || !language) {
-    //   return res.status(400).json({
-    //     message: "insufficient problem and language",
-    //   });
-    // }
     const input: Redispayload = {
       code: code,
       languageId: languageId,
       problemId: problemId,
     };
 
-    await redisClient.lPush(redisQueue, JSON.stringify(input));
-    const ans = await runCode(code);
+    console.log("pushing the code");
+
+    await redisClient.lPush(requestQueue, JSON.stringify(input));
+    // const ans = await runCode(code);
+    console.log("popping the requeust");
+
+    const output = await redisClient.brPop(responseQueue, 0);
+    console.log("popped the response");
+
+    console.log(output);
+
     return res.status(200).json({
-      answer: "",
+      answer: output,
     });
   } catch (error) {
     return res.status(400).json({

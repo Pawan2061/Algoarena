@@ -10,6 +10,10 @@ export const redisClient = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 
+export const pullClient = createClient({
+  url: process.env.REDIS_URL || "redis://localhost:6379",
+});
+
 const app = express();
 app.use(express.json());
 dotenv.config();
@@ -23,6 +27,7 @@ app.get("/test", [verifyToken, checkRole], () => {
 
 async function startServer() {
   await redisClient.connect();
+  await pullClient.connect();
   app.listen(3000, () => {
     console.log("working on server");
   });

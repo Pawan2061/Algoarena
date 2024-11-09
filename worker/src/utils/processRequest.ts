@@ -1,13 +1,17 @@
 import { json } from "express";
 import { CodeElement } from "../interface";
-import axios from "axios";
-import { createSubmission, getResults, getSubmission } from "./creds";
+import { createSubmission, getSubmission } from "./creds";
+import { pushClient } from "..";
+
+const responseQueue = "responsequeue";
 
 export const processRequest = async (element: CodeElement) => {
   const langId = element.languageId;
 
   switch (langId) {
     case "70":
+      console.log("inside the case");
+
       const input = {
         language_id: parseInt(element.languageId),
         source_code: btoa(element.code),
@@ -16,19 +20,25 @@ export const processRequest = async (element: CodeElement) => {
       const resp = await createSubmission(input);
 
       const showResult = async () => {
+        console.log("inside the showresult");
+
         const result: any = await getSubmission(resp.token);
+        console.log(result);
+
         if (result.status_id === 1 || result.status_id === 2) {
           console.log("waiting ..");
-          setTimeout(showResult, 2000);
+          await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
-          console.log("completed");
           const decodedOutput = result?.stdout ? atob(result.stdout) : "";
           return decodedOutput;
         }
       };
+      console.log("outside showresult");
 
-      const output = await showResult();
-      console.log("first thing", output, "final thing is here");
+      const finalOut = await showResult();
+
+      await pushClient.lPush(responseQueue, JSON.stringify(finalOut));
+      console.log("pushed the code");
 
     case "2":
       return "JavaScript";

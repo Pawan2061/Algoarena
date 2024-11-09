@@ -7,15 +7,19 @@ import { processRequest } from "./utils/processRequest";
 const redisQueue = "requestqueue";
 dotenv.config();
 
-const redis_url = process.env.REDIS_URL || "redis://localhost:6379";
+export const redis_url = process.env.REDIS_URL || "redis://localhost:6379";
 
-const redisClient = createClient({
+export const redisClient = createClient({
+  url: redis_url,
+});
+export const pushClient = createClient({
   url: redis_url,
 });
 
 async function connectRedis() {
   try {
     await redisClient.connect();
+    await pushClient.connect();
     redisClient.on("error", (err) => {
       console.log("error while joining redis", err);
     });
