@@ -36,7 +36,7 @@ export const createSubmission = async (
     };
 
     await redisClient.lPush(redisQueue, JSON.stringify(input));
-    // const ans = await runCode(code);
+    const ans = await runCode(code);
     return res.status(200).json({
       answer: "",
     });

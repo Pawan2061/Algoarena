@@ -1,26 +1,71 @@
-export const getOptions = async (input: {
+import axios from "axios";
+
+export const createSubmission = async (code: {
   language_id: number;
   source_code: string;
-}) => {
-  const key = process.env.JUDGE0_KEY;
-  const host = process.env.JUDGE_HOST;
+}): Promise<any> => {
+  try {
+    const key = process.env.JUDGE0_KEY;
+    const host = process.env.JUDGE_HOST;
+    const options = {
+      method: "POST",
+      url: "https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=false&fields=*",
+      headers: {
+        "content-type": "application/json",
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        "X-RapidAPI-Key": "5c47cd0144msh7d38df2c558f990p1132a5jsnb0b367924022",
+      },
+      data: {
+        language_id: code.language_id,
+        source_code: code.source_code,
+      },
+    };
 
-  const options = {
-    method: "POST",
-    url: `https://judge0-ce.p.rapidapi.com/submissions?base64_encoded=true&wait=false&fields=*`,
-    headers: {
-      "content-type": "application/json",
-      "X-RapidAPI-Host": process.env.JUDGE_HOST, // Use environment variable for host
-      "X-RapidAPI-Key": process.env.JUDGE0_KEY, // Use environment variable for API key
-    },
-    data: {
-      source_code: input.source_code, // Use source_code from input
-      language_id: input.language_id, // Use language_id from input
-    },
-  };
+    const response = await axios.request(options);
+    return response.data;
+  } catch (error) {
+    console.log(error);
 
-  console.log(options.data, "hi");
+    return error;
+  }
+};
 
-  // Return the entire options object (not just the data)
-  return options;
+export const getSubmission = async (token: string) => {
+  try {
+    const options = {
+      method: "GET",
+      url: `https://judge0-ce.p.rapidapi.com/submissions/${token}`,
+      params: {
+        base64_encoded: "true",
+        fields: "*",
+      },
+      headers: {
+        "X-RapidAPI-Host": "judge0-ce.p.rapidapi.com",
+        "X-RapidAPI-Key": "5c47cd0144msh7d38df2c558f990p1132a5jsnb0b367924022",
+      },
+    };
+
+    const response = await axios.request(options);
+
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const getResults = async (response: any) => {
+  if ((response && response.status.id === 1) || response.status.id === 2) {
+    console.log("processing........");
+    setTimeout(() => {
+      console.log("waiting");
+    }, 2000);
+  } else if (response && response.stdout) {
+    const decodedOutput = atob(response?.stdout);
+
+    return decodedOutput.toString();
+  } else {
+    console.log("no output available");
+    return undefined;
+  }
 };
