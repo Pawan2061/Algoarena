@@ -30,7 +30,12 @@ export const createSubmission = async (code: {
   }
 };
 
+//create submissipn ->token
+
+//get submission
 export const getSubmission = async (token: string) => {
+  console.log(token, "is here token");
+
   try {
     const options = {
       method: "GET",
@@ -49,7 +54,6 @@ export const getSubmission = async (token: string) => {
 
     return response.data;
   } catch (error) {
-    console.log(error);
     return error;
   }
 };

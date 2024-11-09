@@ -20,25 +20,19 @@ export const processRequest = async (element: CodeElement) => {
       const resp = await createSubmission(input);
 
       const showResult = async () => {
-        console.log("inside the showresult");
-
         const result: any = await getSubmission(resp.token);
-        console.log(result);
 
         if (result.status_id === 1 || result.status_id === 2) {
-          console.log("waiting ..");
           await new Promise((resolve) => setTimeout(resolve, 2000));
         } else {
           const decodedOutput = result?.stdout ? atob(result.stdout) : "";
           return decodedOutput;
         }
       };
-      console.log("outside showresult");
 
       const finalOut = await showResult();
 
       await pushClient.lPush(responseQueue, JSON.stringify(finalOut));
-      console.log("pushed the code");
 
     case "2":
       return "JavaScript";

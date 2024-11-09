@@ -28,14 +28,21 @@ export const createSubmission = async (
 
     console.log("pushing the code");
 
-    await redisClient.lPush(requestQueue, JSON.stringify(input));
-    // const ans = await runCode(code);
-    console.log("popping the requeust");
+    // await redisClient.lPush(requestQueue, JSON.stringify(input));
+
+    await redisClient.lPush(requestQueue, JSON.stringify(code));
+    console.log("psuhed to queue");
 
     const output = await redisClient.brPop(responseQueue, 0);
-    console.log("popped the response");
+    console.log(output, "the final output is here");
 
-    console.log(output);
+    console.log("compiled the output");
+
+    // const ans = await runCode(code);
+    // console.log("popping the requeust");
+
+    // const output = await redisClient.brPop(responseQueue, 0);
+    // console.log("popped the response", output);
 
     return res.status(200).json({
       answer: output,
