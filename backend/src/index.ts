@@ -1,9 +1,14 @@
 import express, { Response } from "express";
 import dotenv from "dotenv";
+import { createClient } from "redis";
+
 import { userRouter } from "./routes/authRoutes";
 import { checkRole, verifyToken } from "./utils/jwt";
 import { problemRouter } from "./routes/problemRoutes";
 import { submitRouter } from "./routes/submissionRoutes";
+export const redisClient = createClient({
+  url: process.env.REDIS_URL || "redis://localhost:6379",
+});
 
 const app = express();
 app.use(express.json());
@@ -16,6 +21,11 @@ app.get("/test", [verifyToken, checkRole], () => {
   console.log("working fine");
 });
 
-app.listen(3000, () => {
-  console.log("working on server");
-});
+async function startServer() {
+  await redisClient.connect();
+  app.listen(3000, () => {
+    console.log("working on server");
+  });
+}
+
+startServer();

@@ -1,8 +1,9 @@
-import { Request, Response } from "express";
-import { submissionPayload } from "../interface";
-import prisma from "../utils/prisma";
+import { Response } from "express";
+
+const redisQueue = "requestqueue";
 
 import { findProblemAndLanguage, runCode, runCodeJava } from "../utils/extra";
+import { redisClient } from "..";
 
 export const createSubmission = async (
   req: any,
@@ -27,6 +28,13 @@ export const createSubmission = async (
         message: "insufficient problem and language",
       });
     }
+    const input = {
+      code: code,
+      languageId: languageId,
+      problemId: problemId,
+    };
+
+    redisClient.lPush(redisQueue, "hello");
     const ans = await runCode(code);
     return res.status(200).json({
       answer: ans,

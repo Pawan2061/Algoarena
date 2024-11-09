@@ -60,7 +60,7 @@ export const runCodeJava = async (code: string) => {
           if (runStderr) {
             return reject(new Error(`Execution stderr: ${runStderr}`));
           }
-          resolve(runStdout);
+          resolve(JSON.parse(runStdout));
         }
       );
     });
