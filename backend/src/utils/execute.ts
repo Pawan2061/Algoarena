@@ -1,4 +1,5 @@
 import axios from "axios";
+import { test_cases } from "./test_case";
 
 export const createSubmissionCode = async (code: {
   language_id: number;
@@ -49,34 +50,35 @@ export const getSubmission = async (token: string) => {
     };
 
     const response = await axios.request(options);
-    console.log(response.data);
 
     return response.data;
   } catch (error) {
     return error;
   }
 };
-export const getResults = async (
-  token: string
-): Promise<string | undefined> => {
+export const getResults = async (token: string): Promise<any> => {
   let response;
   try {
     while (true) {
       response = await getSubmission(token);
 
-      // Check if processing is done
       if (response.status && response.status.id >= 3) {
-        break; // Break the loop if status is no longer "processing"
+        break;
       }
 
-      console.log("Processing... Retrying in 2 seconds...");
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log("Processing... Retrying in 3 seconds...");
+      await new Promise((resolve) => setTimeout(resolve, 3000));
     }
 
-    // Check for output after processing completes
     if (response.stdout) {
       const decodedOutput = atob(response.stdout);
-      return decodedOutput;
+      const { time, language_id, status_id } = response;
+      return {
+        decodedOutput,
+        time,
+        language_id,
+        status_id,
+      };
     } else if (response.stderr) {
       const errorOutput = atob(response.stderr);
       return `Error: ${errorOutput}`;
@@ -88,4 +90,28 @@ export const getResults = async (
     console.error("Error retrieving results:", error);
     return undefined;
   }
+};
+
+export const matchTestCases = async (responses: any) => {
+  let successfulMatches = 0;
+  let unsuccessfulMatches = 0;
+
+  test_cases.test_cases.forEach((testCase, index) => {
+    const responseOutput = responses[index].decodedOutput.trim();
+    const expectedOutput = testCase.expected_output.trim();
+
+    const normalizedResponseOutput = responseOutput.replace(/\r\n/g, "\n");
+    const normalizedExpectedOutput = expectedOutput.replace(/\r\n/g, "\n");
+
+    console.log(`Expected Output: \n${normalizedExpectedOutput}`);
+    console.log(`Decoded Output: \n${normalizedResponseOutput}`);
+
+    if (normalizedResponseOutput === normalizedExpectedOutput) {
+      successfulMatches++;
+    } else {
+      unsuccessfulMatches++;
+    }
+  });
+
+  return { successfulMatches, unsuccessfulMatches };
 };

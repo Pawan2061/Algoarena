@@ -4,11 +4,12 @@ const requestQueue = "requestqueue";
 const responseQueue = "responsequeue";
 import { findProblemAndLanguage, runCode, runCodeJava } from "../utils/extra";
 import { redisClient } from "..";
-import { Redispayload } from "../interface";
+import { Redispayload, SubmissionRequest } from "../interface";
 import {
   createSubmissionCode,
   getResults,
   getSubmission,
+  matchTestCases,
 } from "../utils/execute";
 
 export const createSubmission = async (
@@ -32,11 +33,45 @@ export const createSubmission = async (
 
     const resp = await createSubmissionCode(input);
 
-    const finalOut = await getResults(resp.token);
+    const output = await getResults(resp.token);
+    console.log(output);
 
     return res.status(200).json({
-      answer: JSON.parse(JSON.stringify(finalOut)),
+      answer: JSON.parse(JSON.stringify(output.decodedOutput)),
     });
+  } catch (error) {
+    return res.status(400).json({
+      message: error,
+    });
+  }
+};
+export const batchSubmit = async (req: any, res: Response): Promise<any> => {
+  try {
+    const { codes, languageId, problemId }: SubmissionRequest = req.body;
+
+    if (!codes || !languageId || !problemId) {
+      return res.status(404).json({
+        message: "not found",
+      });
+    }
+    let results = [];
+    for (let code of codes) {
+      const input = {
+        language_id: parseInt(languageId),
+        source_code: btoa(code),
+      };
+      const { token } = await createSubmissionCode(input);
+      const finalOutput = await getResults(token);
+      results.push(finalOutput);
+    }
+    const { successfulMatches, unsuccessfulMatches } = await matchTestCases(
+      results
+    );
+
+    return {
+      test_cases_passed: successfulMatches,
+      test_cases_failed: unsuccessfulMatches,
+    };
   } catch (error) {
     return res.status(400).json({
       message: error,

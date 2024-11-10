@@ -44,3 +44,9 @@ export interface CodeElement {
   languageId: string;
   problemId: string;
 }
+
+export interface SubmissionRequest {
+  codes: string[];
+  languageId: string;
+  problemId: number;
+}
