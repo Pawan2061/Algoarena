@@ -2,7 +2,7 @@ import fs from "fs";
 import { exec } from "child_process";
 
 export const runCode = async (code: string) => {
-  const command = `python3 -c "${code.replace(/"/g, '\\"')}"`;
+  const command = `docker run `;
   const fileName = "pawan.py";
   console.log(code);
 
@@ -25,6 +25,26 @@ export const runCode = async (code: string) => {
       console.log(stdout, "stdout is ehre");
 
       //   fs.unlinkSync(fileName);
+
+      resolve(stdout);
+    });
+  });
+};
+
+export const runJavascript = async (code: string) => {
+  const command = `node -e "${code.replace(/"/g, '\\"')}"`;
+
+  const fileName = "pawan.js";
+  fs.writeFileSync(fileName, code);
+
+  return new Promise((resolve, reject) => {
+    exec(command, (error, stdout, stderr) => {
+      if (error) {
+        return reject(new Error(`Execution error : ${error.message}`));
+      }
+      if (stderr) {
+        return reject(new Error(`stderr: ${stderr}`));
+      }
 
       resolve(stdout);
     });

@@ -4,7 +4,7 @@ import { createClient } from "redis";
 import dotenv from "dotenv";
 
 import { processRequest } from "./utils/processRequest";
-import { runCode } from "./utils/local";
+import { runCode, runJavascript } from "./utils/local";
 const redisQueue = "requestqueue";
 const responseQueue = "responsequeue";
 dotenv.config();
@@ -35,7 +35,10 @@ async function connectRedis() {
 connectRedis();
 async function executeProcess() {
   const request = await redisClient.brPop(redisQueue, 0);
+
   console.log(request?.element, "element is received");
+
+  // const output = await runJavascript(JSON.parse(request!.element));
 
   const output = await runCode(JSON.parse(request!.element));
   console.log(output);
@@ -44,7 +47,7 @@ async function executeProcess() {
   console.log("pushed");
 
   // await processRequest(JSON.parse(request!.element));
-  // executeProcess();
+  executeProcess();
 }
 
 app.listen(3002, () => {

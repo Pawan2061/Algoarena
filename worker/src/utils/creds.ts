@@ -30,9 +30,6 @@ export const createSubmission = async (code: {
   }
 };
 
-//create submissipn ->token
-
-//get submission
 export const getSubmission = async (token: string) => {
   console.log(token, "is here token");
 
