@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { getUser, getUsers, signIn, signUp } from "../controllers/userControl";
 export const userRouter = express.Router();
-userRouter.post("/signup", signUp);
+userRouter.post("/users/create", signUp);
 userRouter.post("/signin", signIn);
 userRouter.get("/users/all", getUsers);
-userRouter.get("/user/:id", getUser);
+userRouter.get("/users/:id", getUser);

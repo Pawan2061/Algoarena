@@ -1,4 +1,5 @@
 export interface SignupSchema {
+  id: string;
   name: string;
   password: string;
 }
@@ -11,7 +12,6 @@ export interface SigninSchema {
 export interface JwtPayload {
   id: string;
   name: string;
-  password: string;
 }
 
 export interface problemPayload {
