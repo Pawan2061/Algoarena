@@ -37,16 +37,8 @@ async function executeProcess() {
   const request = await redisClient.brPop(redisQueue, 0);
 
   console.log(request?.element, "element is received");
+  await processRequest(JSON.parse(request!.element));
 
-  // const output = await runJavascript(JSON.parse(request!.element));
-
-  const output = await runCode(JSON.parse(request!.element));
-  console.log(output);
-
-  await pushClient.lPush(responseQueue, JSON.stringify(output));
-  console.log("pushed");
-
-  // await processRequest(JSON.parse(request!.element));
   executeProcess();
 }
 

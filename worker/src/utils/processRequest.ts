@@ -1,7 +1,7 @@
 import { json } from "express";
 import { CodeElement } from "../interface";
-import { createSubmission, getSubmission } from "./creds";
 import { pushClient } from "..";
+import { runJavascript } from "./local";
 
 const responseQueue = "responsequeue";
 
@@ -9,30 +9,14 @@ export const processRequest = async (element: CodeElement) => {
   const langId = element.languageId;
 
   switch (langId) {
-    case "70":
-      console.log("inside the case");
-
+    case "1":
       const input = {
         language_id: parseInt(element.languageId),
         source_code: btoa(element.code),
       };
 
-      const resp = await createSubmission(input);
-
-      const showResult = async () => {
-        const result: any = await getSubmission(resp.token);
-
-        if (result.status_id === 1 || result.status_id === 2) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-        } else {
-          const decodedOutput = result?.stdout ? atob(result.stdout) : "";
-          return decodedOutput;
-        }
-      };
-1
-      const finalOut = await showResult();
-
-      await pushClient.lPush(responseQueue, JSON.stringify(finalOut));
+      const output = await runJavascript(input.source_code);
+      await pushClient.lPush(responseQueue, JSON.stringify(output));
 
     case "2":
       return "JavaScript";

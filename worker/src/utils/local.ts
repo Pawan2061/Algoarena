@@ -24,8 +24,6 @@ export const runCode = async (code: string) => {
       console.log("no error");
       console.log(stdout, "stdout is ehre");
 
-      //   fs.unlinkSync(fileName);
-
       resolve(stdout);
     });
   });

@@ -25,12 +25,17 @@ export const createSubmission = async (
       });
     }
 
+    const { language, problem } = await findProblemAndLanguage(
+      languageId,
+      problemId
+    );
     const input = {
-      language_id: parseInt(languageId),
-      source_code: btoa(code),
+      language_id: parseInt(language!.id),
+      source_code: code,
     };
 
-    const output = await runJavascript(input.source_code);
+    await redisClient.lPush(requestQueue, JSON.stringify(input));
+    const output = await redisClient.brPop(responseQueue, 0);
 
     return res.status(200).json({
       answer: JSON.parse(JSON.stringify(output)),
@@ -41,15 +46,3 @@ export const createSubmission = async (
     });
   }
 };
-
-// await redisClient.lPush(requestQueue, JSON.stringify(input));
-
-// await redisClient.lPush(requestQueue, JSON.stringify(code));
-
-// const output = await redisClient.brPop(responseQueue, 0);
-
-// const ans = await runCode(code);
-// console.log("popping the requeust");
-
-// const output = await redisClient.brPop(responseQueue, 0);
-// console.log("popped the response", output);
