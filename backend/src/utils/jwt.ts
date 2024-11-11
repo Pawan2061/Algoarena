@@ -22,13 +22,13 @@ export const verifyToken = async (
     res.status(404).json({
       message: "unauthorized",
     });
+    return;
   }
   jwt.verify(token!, process.env.JWT_SECRET!, (err: any, decodedToken: any) => {
     if (err) {
-      res.status(404).json({
+      return res.status(404).json({
         error: err,
       });
-      return;
     }
     req.user = decodedToken;
     next();

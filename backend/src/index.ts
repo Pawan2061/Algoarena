@@ -21,8 +21,8 @@ dotenv.config();
 app.use("/api/v1", userRouter);
 app.use("/api/v1", problemRouter);
 app.use("/api/v1", submitRouter);
-app.get("/test", [verifyToken, checkRole], () => {
-  console.log("working fine");
+app.get("/test", [verifyToken, verifyToken], () => {
+  console.log("working good");
 });
 
 async function startServer() {
