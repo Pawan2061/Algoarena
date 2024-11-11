@@ -9,6 +9,7 @@ const docker = new Docker();
 
 
 export async function executeCode_python_code(code:string) {
+    console.log("Starting COde exe")
 
   const tempFilePath = path.join(__dirname, `${uuid()}.py`);
 

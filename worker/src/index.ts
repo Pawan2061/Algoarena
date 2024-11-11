@@ -16,6 +16,7 @@ export const pushClient = createClient({
   url: redis_url,
 });
 
+
 async function connectRedis() {
   try {
     await redisClient.connect();
@@ -32,15 +33,25 @@ async function connectRedis() {
 
 connectRedis();
 
+
+
+
+
 async function executeProcess() {
-  const request = await redisClient.brPop(redisQueue, 0);
 
-  console.log(request?.element, "element is received");
+  while (true) {
 
-  await processRequest(JSON.parse(request!.element));
+    const request = await redisClient.brPop(redisQueue, 0);
 
-  executeProcess();
+    console.log(request?.element, "element is received");
+
+    await processRequest(JSON.parse(request!.element));
+
+  }
+
+
 }
+
 
 app.listen(3002, () => {
   console.log("working on port 3002");
