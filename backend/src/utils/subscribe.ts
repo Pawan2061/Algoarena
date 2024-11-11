@@ -12,6 +12,7 @@ export const handleSubcribe = (
     }, timeoutMs);
 
     subClient.subscribe(channel, (data) => {
+      console.log("received:", data)
       clearTimeout(timeout);
       subClient.unsubscribe(channel);
       resolve(data);
