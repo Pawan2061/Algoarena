@@ -5,7 +5,7 @@ const responseQueue = "responsequeue";
 import { findProblemAndLanguage } from "../utils/extra";
 import { redisClient } from "..";
 import prisma from "../utils/prisma";
-import { GetSubmissionByProblem } from "../interface";
+import { v4 as uuidv4 } from "uuid";
 
 export const createSubmission = async (
   req: any,
@@ -29,7 +29,9 @@ export const createSubmission = async (
       languageId,
       problemId
     );
+    const queueId = uuidv4();
     const input = {
+      queueId: queueId,
       language_id: parseInt(language!.id),
       source_code: code,
     };
@@ -40,6 +42,7 @@ export const createSubmission = async (
 
     const output = await redisClient.brPop(responseQueue, 0);
     console.log("received rhe output", output);
+
     const submission = await prisma.submission.create({
       data: {
         languageId: languageId,
