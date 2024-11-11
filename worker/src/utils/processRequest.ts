@@ -1,34 +1,57 @@
+import { pushClient } from "..";
 import { CodeElement } from "../interface";
 import { execute_python } from "./local";
 
-export const processRequest = async (element: CodeElement) => {
-  const langId = element.languageId;
-  console.log("processsion Element :",element)
+async function execute_js(source_code: string): Promise<string> {
+  return "JavaScript execution result";
+}
 
-  switch (langId) {
-    case "1":
-      const ans = execute_python(element.code)
-      console.log("Python ans :",ans)
-      return ""
-    case "2":
-      return "JavaScript";
-    case "3":
-      return "C++";
-    case "4":
-      return "Java";
-    case "5":
-      return "Ruby";
-    case "6":
-      return "Go";
-    case "7":
-      return "PHP";
-    case "8":
-      return "C#";
-    case "9":
-      return "Swift";
-    case "10":
-      return "Kotlin";
-    default:
-      return "Unknown Language";
+async function execute_cpp(source_code: string): Promise<string> {
+  return "C++ execution result";
+}
+
+async function handleResponse(ans: any, id : string) {
+  id =  "my_id"
+  const result = JSON.stringify(ans)
+
+  console.log(typeof result)
+  console.log("Publishing result to API:", result);
+
+  console.log(pushClient.isOpen)
+
+  await pushClient.publish(id,result)
+}
+
+export const processRequest = async (element: CodeElement) => {
+  const langId = element.language_id.toString();
+  console.log("Language ID:", langId, "\nRequest ID:", element.id);
+  console.log("Processing Element:", element);
+
+  try {
+    let ans;
+    switch (langId) {
+      case "1":
+        console.log("Starting execution of Python code");
+        ans = await execute_python(element.source_code);
+        break;
+
+      case "2":
+        console.log("Starting execution of JavaScript code");
+        ans = await execute_js(element.source_code);
+        break;
+
+      case "3":
+        console.log("Starting execution of C++ code");
+        ans = await execute_cpp(element.source_code);
+        break;
+
+      default:
+        console.log("Unknown language");
+        ans = { error: "Unsupported language" };
+    }
+    await handleResponse(ans, element.id);
+  } catch (error: any) {
+    console.error(`Error executing code for language ID ${langId}:`, error);
+    await handleResponse({ error: error.message || "Execution error" }, element.id);
   }
 };

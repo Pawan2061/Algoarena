@@ -1,5 +1,6 @@
 export interface CodeElement {
-  code: string;
-  languageId: string;
-  problemId: string;
+  id:string
+  language_id: string;
+  source_code: string;
+
 }
