@@ -1,9 +1,10 @@
-import { Response } from "express";
+import { Response, Request } from "express";
 
 const requestQueue = "requestqueue";
 const responseQueue = "responsequeue";
 import { findProblemAndLanguage } from "../utils/extra";
 import { redisClient } from "..";
+import prisma from "../utils/prisma";
 
 export const createSubmission = async (
   req: any,
@@ -12,7 +13,7 @@ export const createSubmission = async (
   try {
     console.log("inside");
 
-    // const userId = req.user.id;
+    const userId = req.user.id;
     const { code, languageId, problemId } = req.body;
     console.log("got the input");
 
@@ -38,13 +39,27 @@ export const createSubmission = async (
 
     const output = await redisClient.brPop(responseQueue, 0);
     console.log("received rhe output", output);
+    const submission = await prisma.submission.create({
+      data: {
+        languageId: languageId,
+        userId: userId,
+        problemId: problemId,
+        status: "Pending",
+        code: code,
+      },
+    });
 
     return res.status(200).json({
-      answer: JSON.parse(JSON.stringify(output)),
+      answer: JSON.parse(JSON.stringify(submission)),
     });
   } catch (error) {
     return res.status(400).json({
       message: error,
     });
   }
+};
+
+export const getSubmissions = async (req: Request, res: Response) => {
+  try {
+  } catch (error) {}
 };

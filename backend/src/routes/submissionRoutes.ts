@@ -5,4 +5,4 @@ export const submitRouter = express.Router();
 
 // submitRouter.post("/submissions/create", [verifyToken], createSubmission);
 
-submitRouter.post("/submissions/create", createSubmission);
+submitRouter.post("/submissions/create", [verifyToken], createSubmission);
