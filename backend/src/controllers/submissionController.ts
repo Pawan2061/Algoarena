@@ -19,20 +19,24 @@ export const createSubmission = async (
   res: Response
 ): Promise<any> => {
   try {
-    const userId = req.user.id;
-    const { code, languageId, problemId } = req.body;
+    console.log("starting test");
 
-    if (!code || !languageId || !problemId) {
-      return res.status(404).json({
+    const userId = req.user.id;
+    const { id, code, languageId, problemId } = req.body;
+
+    if (!code || !languageId || !problemId || !id) {
+      return res.status(403).json({
         message: "credentials are unavailble",
       });
     }
+    console.log("checking");
 
     const { language, problem } = await findProblemAndLanguage(
       languageId,
       problemId
     );
     const queueId = uuidv4();
+    console.log("input");
 
     const inputRedis = {
       queueId: queueId,
