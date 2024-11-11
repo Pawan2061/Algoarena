@@ -6,42 +6,47 @@ import { findProblemAndLanguage } from "../utils/extra";
 import { redisClient } from "..";
 import prisma from "../utils/prisma";
 import { v4 as uuidv4 } from "uuid";
+import { createClient } from "redis";
+import { handleSubcribe } from "../utils/subscribe";
 
+export const subClient = createClient({
+  url: process.env.REDIS_URL || "redis://localhost:6379",
+});
 export const createSubmission = async (
   req: any,
   res: Response
 ): Promise<any> => {
   try {
-    console.log("inside");
-
     const userId = req.user.id;
     const { code, languageId, problemId } = req.body;
-    console.log("got the input");
 
     if (!code || !languageId || !problemId) {
       return res.status(404).json({
         message: "credentials are unavailble",
       });
     }
-    console.log("got the body", code, languageId, problemId);
 
     const { language, problem } = await findProblemAndLanguage(
       languageId,
       problemId
     );
     const queueId = uuidv4();
+
     const input = {
       queueId: queueId,
       language_id: parseInt(language!.id),
       source_code: code,
     };
-    console.log("sending in the queue");
+
+    const finalOutput = handleSubcribe(queueId, 5000);
 
     await redisClient.lPush(requestQueue, JSON.stringify(input));
-    console.log("sent the queue");
 
-    const output = await redisClient.brPop(responseQueue, 0);
-    console.log("received rhe output", output);
+    const response = await finalOutput;
+
+    // const output = await redisClient.brPop(responseQueue, 0);
+
+    console.log(response, "output is here");
 
     const submission = await prisma.submission.create({
       data: {
@@ -62,7 +67,7 @@ export const createSubmission = async (
     });
 
     return res.status(200).json({
-      answer: JSON.parse(JSON.stringify(submission)),
+      answer: JSON.parse(JSON.stringify(response)),
     });
   } catch (error) {
     return res.status(400).json({
