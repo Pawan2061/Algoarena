@@ -1,18 +1,15 @@
 import { CodeElement } from "../interface";
-import { execute_python_code } from "./local";
-
-const responseQueue = "responsequeue";
+import { execute_python } from "./local";
 
 export const processRequest = async (element: CodeElement) => {
   const langId = element.languageId;
+  console.log("processsion Element :",element)
 
   switch (langId) {
     case "1":
-      const ans = execute_python_code(element.code)
+      const ans = execute_python(element.code)
       console.log("Python ans :",ans)
       return ""
-      
-
     case "2":
       return "JavaScript";
     case "3":
