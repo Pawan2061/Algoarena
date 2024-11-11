@@ -50,3 +50,7 @@ export interface SubmissionRequest {
   languageId: string;
   problemId: number;
 }
+
+export interface GetSubmissionByProblem {
+  problemId: string;
+}
