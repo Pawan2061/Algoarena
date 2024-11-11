@@ -4,12 +4,8 @@ const requestQueue = "requestqueue";
 const responseQueue = "responsequeue";
 import {
   findProblemAndLanguage,
-  runCode,
-  runCodeJava,
-  runJavascript,
 } from "../utils/extra";
 import { redisClient } from "..";
-import { Redispayload, SubmissionRequest } from "../interface";
 
 export const createSubmission = async (
   req: any,

@@ -1,7 +1,5 @@
-import { json } from "express";
 import { CodeElement } from "../interface";
-import { pushClient } from "..";
-import { runJavascript } from "./local";
+import { execute_python_code } from "./local";
 
 const responseQueue = "responsequeue";
 
@@ -10,13 +8,10 @@ export const processRequest = async (element: CodeElement) => {
 
   switch (langId) {
     case "1":
-      const input = {
-        language_id: parseInt(element.languageId),
-        source_code: btoa(element.code),
-      };
-
-      const output = await runJavascript(input.source_code);
-      await pushClient.lPush(responseQueue, JSON.stringify(output));
+      const ans = execute_python_code(element.code)
+      console.log("Python ans :",ans)
+      return ""
+      
 
     case "2":
       return "JavaScript";

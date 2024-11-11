@@ -1,50 +1,66 @@
 import fs from "fs";
 import { exec } from "child_process";
+import { v4 as uuid } from 'uuid';
+import path from "path";
+import Redis from 'ioredis';
+import Docker from 'dockerode';
+import * as os from 'os';
 
-export const runCode = async (code: string) => {
-  const command = `docker run `;
-  const fileName = "pawan.py";
-  console.log(code);
+const redis = new Redis();
+const docker = new Docker();
 
-  fs.writeFileSync(fileName, code);
-  console.log("reached the exec point");
+export function execute_python_code(code:string){
 
-  return new Promise((resolve, reject) => {
-    console.log("inside promise");
+  const python_code_ans = executeCode(code)
 
-    exec(command, (error, stdout, stderr) => {
-      console.log("executing");
+  console.log(python_code_ans)
 
-      if (error) {
-        return reject(new Error(`Execution error: ${error.message}`));
-      }
-      if (stderr) {
-        return reject(new Error(`stderr: ${stderr}`));
-      }
-      console.log("no error");
-      console.log(stdout, "stdout is ehre");
+}
 
-      resolve(stdout);
-    });
-  });
-};
+async function executeCode(code: string): Promise<string> {
 
-export const runJavascript = async (code: string) => {
-  const command = `node -e "${code.replace(/"/g, '\\"')}"`;
+  const tempFilePath = path.join(os.tmpdir(), `${uuid()}.py`);
 
-  const fileName = "pawan.js";
-  fs.writeFileSync(fileName, code);
+  fs.writeFileSync(tempFilePath, code);
 
-  return new Promise((resolve, reject) => {
-    exec(command, (error, stdout, stderr) => {
-      if (error) {
-        return reject(new Error(`Execution error : ${error.message}`));
-      }
-      if (stderr) {
-        return reject(new Error(`stderr: ${stderr}`));
-      }
+  console.log("File Write Complete")
 
-      resolve(stdout);
-    });
-  });
-};
+  try {
+      const container = await docker.createContainer({
+          Image: 'python:3.9',
+          Cmd: ['python', `/app/${path.basename(tempFilePath)}`],
+          Volumes: {
+              '/app': {} // Mounting the code file to /app inside the container
+          },
+          HostConfig: {
+              Binds: [`${path.dirname(tempFilePath)}:/app`] // Mapping the temp directory
+          },
+          AttachStdout: true,
+          AttachStderr: true,
+          Tty: false,
+      });
+
+      await container.start();
+
+      const stream = await container.logs({
+          stdout: true,
+          stderr: true,
+          follow: true
+      });
+
+      let output = '';
+      stream.on('data', (chunk: { toString: () => string; }) => {
+          output += chunk.toString();
+      });
+
+      await container.wait();
+      await container.remove();
+
+      return output;
+
+  } catch (error :any) {
+      return `Error during execution: ${error.message}`;
+  } finally {
+      fs.unlinkSync(tempFilePath);
+  }
+}
