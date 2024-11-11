@@ -2,15 +2,14 @@ import { Response } from "express";
 
 const requestQueue = "requestqueue";
 const responseQueue = "responsequeue";
-import { findProblemAndLanguage, runCode, runCodeJava } from "../utils/extra";
+import {
+  findProblemAndLanguage,
+  runCode,
+  runCodeJava,
+  runJavascript,
+} from "../utils/extra";
 import { redisClient } from "..";
 import { Redispayload, SubmissionRequest } from "../interface";
-import {
-  createSubmissionCode,
-  getResults,
-  getSubmission,
-  matchTestCases,
-} from "../utils/execute";
 
 export const createSubmission = async (
   req: any,
@@ -31,47 +30,11 @@ export const createSubmission = async (
       source_code: btoa(code),
     };
 
-    const resp = await createSubmissionCode(input);
-
-    const output = await getResults(resp.token);
-    console.log(output);
+    const output = await runJavascript(input.source_code);
 
     return res.status(200).json({
-      answer: JSON.parse(JSON.stringify(output.decodedOutput)),
+      answer: JSON.parse(JSON.stringify(output)),
     });
-  } catch (error) {
-    return res.status(400).json({
-      message: error,
-    });
-  }
-};
-export const batchSubmit = async (req: any, res: Response): Promise<any> => {
-  try {
-    const { codes, languageId, problemId }: SubmissionRequest = req.body;
-
-    if (!codes || !languageId || !problemId) {
-      return res.status(404).json({
-        message: "not found",
-      });
-    }
-    let results = [];
-    for (let code of codes) {
-      const input = {
-        language_id: parseInt(languageId),
-        source_code: btoa(code),
-      };
-      const { token } = await createSubmissionCode(input);
-      const finalOutput = await getResults(token);
-      results.push(finalOutput);
-    }
-    const { successfulMatches, unsuccessfulMatches } = await matchTestCases(
-      results
-    );
-
-    return {
-      test_cases_passed: successfulMatches,
-      test_cases_failed: unsuccessfulMatches,
-    };
   } catch (error) {
     return res.status(400).json({
       message: error,
