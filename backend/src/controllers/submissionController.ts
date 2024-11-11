@@ -5,6 +5,7 @@ const responseQueue = "responsequeue";
 import { findProblemAndLanguage } from "../utils/extra";
 import { redisClient } from "..";
 import prisma from "../utils/prisma";
+import { GetSubmissionByProblem } from "../interface";
 
 export const createSubmission = async (
   req: any,
@@ -48,6 +49,14 @@ export const createSubmission = async (
         code: code,
       },
     });
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        totalSubmissions: {
+          increment: 1,
+        },
+      },
+    });
 
     return res.status(200).json({
       answer: JSON.parse(JSON.stringify(submission)),
@@ -58,8 +67,54 @@ export const createSubmission = async (
     });
   }
 };
-
-export const getSubmissions = async (req: Request, res: Response) => {
+//this is the submissions from all the users for a given ps
+export const getAllSubmissions = async (
+  req: Request,
+  res: Response
+): Promise<any> => {
   try {
-  } catch (error) {}
+    const { problemId } = req.params;
+    const submissions = await prisma.submission.findMany({
+      where: {
+        problemId: problemId,
+      },
+    });
+    if (!submissions) {
+      return res.status(404).json({
+        message: "no submissions found",
+      });
+    }
+
+    return res.status(200).json({
+      submissions: submissions,
+    });
+  } catch (error) {
+    console.log(error);
+
+    return res.status(404).json(error);
+  }
+};
+
+export const getUserSubmissions = async (
+  req: any,
+  res: Response
+): Promise<any> => {
+  try {
+    const userId = await req.user.id;
+    const problemId = await req.body.problemId;
+    if (!userId) {
+      return res.status(404).json({
+        message: "user isnot logged in",
+      });
+    }
+    const submissions = await prisma.submission.findMany({
+      where: {
+        userId: userId,
+        problemId: problemId,
+      },
+    });
+    return res.status(200).json({ userSubmissions: submissions });
+  } catch (error) {
+    return res.status(404).json(error);
+  }
 };
