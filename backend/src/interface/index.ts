@@ -54,3 +54,10 @@ export interface SubmissionRequest {
 export interface GetSubmissionByProblem {
   problemId: string;
 }
+
+export interface Output {
+  status: string;
+  actualOutput: any;
+  expectedOutput: any;
+  statusCode: number;
+}

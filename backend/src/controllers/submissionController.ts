@@ -8,6 +8,8 @@ import prisma from "../utils/prisma";
 import { v4 as uuidv4 } from "uuid";
 import { createClient } from "redis";
 import { handleSubcribe } from "../utils/subscribe";
+import { matchResults } from "../utils/match";
+import { Output } from "../interface";
 
 export const subClient = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
@@ -32,22 +34,25 @@ export const createSubmission = async (
     );
     const queueId = uuidv4();
 
-    const input = {
+    const inputRedis = {
       queueId: queueId,
       language_id: parseInt(language!.id),
       source_code: code,
     };
 
-    console.log("listning on id:", input.queueId, queueId)
+    console.log("listning on id:", inputRedis.queueId, queueId);
 
     const finalOutput = handleSubcribe(queueId, 5000);
 
-    await redisClient.lPush(requestQueue, JSON.stringify(input));
+    await redisClient.lPush(requestQueue, JSON.stringify(inputRedis));
 
     const response = await finalOutput;
+    const st = JSON.parse(response);
 
+    const message = st.replace(/[^\x20-\x7E]+/g, "").trim();
+    console.log(message, "is here");
 
-    console.log(response, "output is here");
+    const output = await matchResults(problem!.output, message);
 
     const submission = await prisma.submission.create({
       data: {
@@ -68,7 +73,7 @@ export const createSubmission = async (
     });
 
     return res.status(200).json({
-      answer: JSON.parse(JSON.stringify(response)),
+      answer: JSON.parse(JSON.stringify(output)),
     });
   } catch (error) {
     return res.status(400).json({
