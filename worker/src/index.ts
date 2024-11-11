@@ -36,7 +36,7 @@ async function executeProcess() {
   const request = await redisClient.brPop(redisQueue, 0);
 
   console.log(request?.element, "element is received");
-  
+
   await processRequest(JSON.parse(request!.element));
 
   executeProcess();

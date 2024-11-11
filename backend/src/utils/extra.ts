@@ -4,14 +4,19 @@ import { exec } from "child_process";
 import fs from "fs";
 
 export const findProblemAndLanguage = async (
-  id: string,
-  languageId: string
+  languageId: string,
+  problemId: string
 ) => {
+  console.log("inside finding problem");
+
   const problem = await prisma.problem.findUnique({
     where: {
-      id: id,
+      id: problemId,
     },
   });
+
+  console.log("found the problem", problem);
+
   const language = languages.find((l) => l.id === languageId);
   return { language, problem };
 };
