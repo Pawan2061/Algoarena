@@ -38,13 +38,14 @@ export const createSubmission = async (
       source_code: code,
     };
 
+    console.log("listning on id:", input.queueId, queueId)
+
     const finalOutput = handleSubcribe(queueId, 5000);
 
     await redisClient.lPush(requestQueue, JSON.stringify(input));
 
     const response = await finalOutput;
 
-    // const output = await redisClient.brPop(responseQueue, 0);
 
     console.log(response, "output is here");
 

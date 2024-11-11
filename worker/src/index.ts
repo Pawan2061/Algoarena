@@ -9,6 +9,8 @@ dotenv.config();
 
 export const redis_url = process.env.REDIS_URL || "redis://localhost:6379";
 
+console.log(redis_url)
+
 export const redisClient = createClient({
   url: redis_url,
 });

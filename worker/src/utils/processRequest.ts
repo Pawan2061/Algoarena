@@ -11,11 +11,11 @@ async function execute_cpp(source_code: string): Promise<string> {
 }
 
 async function handleResponse(ans: any, id : string) {
-  id =  "my_id"
+  
   const result = JSON.stringify(ans)
 
   console.log(typeof result)
-  console.log("Publishing result to API:", result);
+  console.log("Publishing result to API: and id", result , id);
 
   console.log(pushClient.isOpen)
 
@@ -24,7 +24,7 @@ async function handleResponse(ans: any, id : string) {
 
 export const processRequest = async (element: CodeElement) => {
   const langId = element.language_id.toString();
-  console.log("Language ID:", langId, "\nRequest ID:", element.id);
+  console.log("Language ID:", langId, "\nRequest ID:", element.queueId);
   console.log("Processing Element:", element);
 
   try {
@@ -49,9 +49,9 @@ export const processRequest = async (element: CodeElement) => {
         console.log("Unknown language");
         ans = { error: "Unsupported language" };
     }
-    await handleResponse(ans, element.id);
+    await handleResponse(ans, element.queueId);
   } catch (error: any) {
     console.error(`Error executing code for language ID ${langId}:`, error);
-    await handleResponse({ error: error.message || "Execution error" }, element.id);
+    await handleResponse({ error: error.message || "Execution error" }, element.queueId);
   }
 };

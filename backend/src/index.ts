@@ -6,6 +6,7 @@ import { userRouter } from "./routes/authRoutes";
 import { checkRole, verifyToken } from "./utils/jwt";
 import { problemRouter } from "./routes/problemRoutes";
 import { submitRouter } from "./routes/submissionRoutes";
+import { subClient } from "./controllers/submissionController";
 export const redisClient = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
@@ -28,6 +29,7 @@ app.get("/test", [verifyToken, verifyToken], () => {
 async function startServer() {
   await redisClient.connect();
   await pullClient.connect();
+  await subClient.connect()
   app.listen(3000, () => {
     console.log("working on server");
   });
