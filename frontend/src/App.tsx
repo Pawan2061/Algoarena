@@ -5,6 +5,7 @@ import Admin from './pages/Admin';
 import ProblemAdminPanel from './components/ui/problem';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import UserPage from './components/ui/users';
 
 function App() {
   return (
@@ -14,6 +15,8 @@ function App() {
         <Route path="/:id" element={<Platform />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/problems" element={<ProblemAdminPanel />} />
+        <Route path="/admin/users" element={<UserPage />} />
+
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
       </Route>

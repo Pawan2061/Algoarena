@@ -1,10 +1,12 @@
-import { logo } from "../assets/index";
+import { logo } from '../assets/index';
 
 export default function Navbar() {
   return (
     <>
       <div className="bg-[#0A0B10]">
-        <img src={logo} className="w-30 h-14 pl-6" alt="" />
+        <a href="/">
+          <img src={logo} className="w-30 h-14 pl-6" alt="" />
+        </a>
         <div></div>
       </div>
     </>
