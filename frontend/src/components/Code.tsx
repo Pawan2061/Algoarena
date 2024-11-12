@@ -36,7 +36,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   ];
 
   useEffect(() => {
-    // Configure Monaco workspace
     monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
       noSemanticValidation: false,
       noSyntaxValidation: false,
@@ -51,7 +50,6 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       typeRoots: ['node_modules/@types'],
     });
 
-    // Register formatter for JavaScript/TypeScript
     monaco.languages.registerDocumentFormattingEditProvider('javascript', {
       provideDocumentFormattingEdits(model) {
         return [
@@ -106,7 +104,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
       return () => newEditor.dispose();
     }
-  }, []); // Only run once on mount
+  }, []);
 
   const handleLanguageChange = (
     event: React.ChangeEvent<HTMLSelectElement>
@@ -162,16 +160,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     return code;
   };
 
-  const handleFormat = () => {
-    if (editor) {
-      const model = editor.getModel();
-      if (model) {
-        const unformattedCode = model.getValue();
-        const formattedCode = formatCode(unformattedCode, selectedLanguage);
-        editor.setValue(formattedCode);
-      }
-    }
-  };
+  // const handleFormat = () => {
+  //   if (editor) {
+  //     const model = editor.getModel();
+  //     if (model) {
+  //       const unformattedCode = model.getValue();
+  //       const formattedCode = formatCode(unformattedCode, selectedLanguage);
+  //       editor.setValue(formattedCode);
+  //     }
+  //   }
+  // };
 
   return (
     <div className="flex flex-col gap-4  w-full">
@@ -204,11 +202,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             ))}
           </select>
         </div>
-        <button
-          onClick={handleFormat}
-          className="px-4 py-1 border rounded cursor-pointer bg-[#324CCD] text-white"
-        >
-          Format Code
+        <button className="px-4 py-1 border  cursor-pointer rounded-lg bg-[#324CCD] text-white">
+          Submit
         </button>
       </div>
       <div
