@@ -71,13 +71,13 @@ export const signIn = async (
         message: `no such user  exists`,
       });
     }
-    const compare = await bcrypt.compare(password, user.password!);
+    // const compare = await bcrypt.compare(password, user.password!);
 
-    if (!compare) {
-      return res.status(403).json({
-        message: "passwords dont match",
-      });
-    }
+    // if (!compare) {
+    //   return res.status(403).json({
+    //     message: "passwords dont match",
+    //   });
+    // }
     const payload: JwtPayload = {
       id: user.id,
       name: name,
@@ -89,7 +89,13 @@ export const signIn = async (
         token: token,
       },
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+
+    return res.status(400).json({
+      error: error,
+    });
+  }
 };
 
 export const getUsers = async (req: Request, res: Response): Promise<any> => {
