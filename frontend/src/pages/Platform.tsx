@@ -1,4 +1,5 @@
-import Code from "../components/Code";
+import CodeEditor from "../components/Code";
+
 import Navbar from "../components/Navbar";
 import Notion from "../components/Notion";
 import CodeOutput from "../components/Output";
@@ -12,9 +13,9 @@ function Platform() {
           {" "}
           <Notion />
         </div>
-        <div>
+        <div className="">
           {" "}
-          <Code />
+          <CodeEditor />
           <CodeOutput />
         </div>
       </div>
