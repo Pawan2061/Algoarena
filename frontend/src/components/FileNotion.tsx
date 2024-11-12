@@ -3,6 +3,8 @@
 // import { NotionRenderer } from "react-notion-x";
 // import { ExtendedRecordMap } from "notion-types";
 
+// yesley not workking cause of CORS error so backend bata naii fetch gaar aaba
+
 // const FileNotion: React.FC = () => {
 //   const [recordMap, setRecordMap] = useState<ExtendedRecordMap | null>(null);
 
